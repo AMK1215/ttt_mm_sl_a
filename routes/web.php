@@ -23,7 +23,6 @@ use Illuminate\Support\Facades\Route;
 
 // Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-
 require_once __DIR__.'/admin.php';
 
 Route::get('login', [LoginController::class, 'index'])->name('login');

@@ -2,13 +2,14 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User;
 use App\Models\Report;
+use App\Models\User;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class PullReport extends Command
 {
@@ -75,9 +76,57 @@ class PullReport extends Command
             if ($data['Wagers'] != null) {
                 $data = $response['Wagers'];
                 Log::info($response);
-               // $user = Auth::user(); // Get the authenticated user
+                // $user = Auth::user(); // Get the authenticated user
                 foreach ($data as $report) {
+                    //     $agent_commission = null; // Default value in case agent is not found
+                    //     $user = User::where('user_name', $report['MemberName'])->first();
+                    //     // Retrieve the player's record
+
+                    // if ($user && $user->agent_id) {
+                    //     // Retrieve the agent's record using the agent_id from the player's record
+                    //     $agent = User::where('id', $user->agent_id)->first();
+
+                    //     if ($agent) {
+                    //         $agent_commission = $agent->commission; // Get the agent's commission
+                    //     } else {
+                    //         Log::warning("Agent not found for agent_id: " . $user->agent_id);
+                    //         $agent_commission = null; // Handle case where agent is not found
+                    //     }
+                    // } else {
+                    //     Log::warning("User not found or user does not have an agent: " . $report['MemberName']);
+                    //     $agent_commission = null; // Handle case where user is not found or has no agent
+                    // }
+
+                    $agent_commission = null; // Default value in case agent is not found
                     $user = User::where('user_name', $report['MemberName'])->first();
+
+                    if ($user && $user->agent_id) {
+                        // Retrieve the agent's record using the agent_id from the player's record
+                        $agent = User::where('id', $user->agent_id)->first();
+
+                        if ($agent) {
+                            $agent_commission = $agent->commission; // Get the agent's commission
+
+                            $agentData = DB::table('reports')
+                                ->join('users', 'reports.agent_id', '=', 'users.id')
+                                ->where('reports.agent_id', $agent->id)
+                                ->select(
+                                    DB::raw('SUM(reports.valid_bet_amount) as total_valid_bets'),
+                                    DB::raw('MAX(users.commission) as commission_rate') // or use groupBy('users.commission')
+                                )
+                                ->first();
+
+                            // Calculate the gross commission
+                            $grossCommission = $agentData->total_valid_bets * ($agentData->commission_rate / 100);
+                        } else {
+                            Log::warning('Agent not found for agent_id: '.$user->agent_id);
+                            $agent_commission = null; // Handle case where agent is not found
+                        }
+                    } else {
+                        Log::warning('User not found or user does not have an agent: '.$report['MemberName']);
+                        $agent_commission = null; // Handle case where user is not found or has no agent
+                    }
+
                     $wagerId = Report::where('wager_id', $report['WagerID'])->first();
 
                     if ($wagerId) {
@@ -98,8 +147,8 @@ class PullReport extends Command
                             'created_on' => $report['CreatedOn'],
                             'modified_on' => $report['ModifiedOn'],
                             'settlement_date' => $report['SettlementDate'],
-                            'agent_id' => $user->agent_id,
-                            'agent_commission' => $user->parent->commission
+                            'agent_id' => $user->agent_id, // Store the agent_id
+                            'agent_commission' => $grossCommission,
                         ]);
                     } else {
                         Report::create([
@@ -119,8 +168,9 @@ class PullReport extends Command
                             'created_on' => $report['CreatedOn'],
                             'modified_on' => $report['ModifiedOn'],
                             'settlement_date' => $report['SettlementDate'],
-                            'agent_id' => $user->agent_id,
-                            'agent_commission' => $user->parent->commission
+                            'agent_id' => $user->agent_id, // Store the agent_id
+                            'agent_commission' => $grossCommission,
+
                         ]);
                     }
                 }

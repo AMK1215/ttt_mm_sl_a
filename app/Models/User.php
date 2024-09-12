@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Enums\UserType;
 use App\Models\Admin\Permission;
 use App\Models\Admin\Role;
+use Bavix\Wallet\Interfaces\Wallet;
+use Bavix\Wallet\Traits\HasWalletFloat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -14,8 +16,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\HasApiTokens;
-use Bavix\Wallet\Traits\HasWalletFloat;
-use Bavix\Wallet\Interfaces\Wallet;
 
 class User extends Authenticatable implements Wallet
 {
@@ -111,7 +111,6 @@ class User extends Authenticatable implements Wallet
         return self::where('type', UserType::Admin)->first();
     }
 
-
     public function getIsAdminAttribute()
     {
         return $this->roles()->where('id', 1)->exists();
@@ -132,7 +131,6 @@ class User extends Authenticatable implements Wallet
         return $this->roles()->where('id', 4)->exists();
     }
 
-
     public function seamlessTransactions()
     {
         return $this->hasMany(SeamlessTransaction::class, 'user_id');
@@ -143,7 +141,6 @@ class User extends Authenticatable implements Wallet
         return $this->hasMany(Wager::class);
     }
 
-   
     public function scopePlayer($query)
     {
         return $query->whereHas('roles', function ($query) {
@@ -169,7 +166,6 @@ class User extends Authenticatable implements Wallet
     // {
     //     return $this->belongsTo(User::class);
     // }
-
 
     public function reports()
     {
