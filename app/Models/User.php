@@ -5,9 +5,6 @@ namespace App\Models;
 use App\Enums\UserType;
 use App\Models\Admin\Permission;
 use App\Models\Admin\Role;
-use App\Models\Admin\Transaction;
-use App\Models\Admin\Wallet;
-use App\Models\CashBonu;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -17,10 +14,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\HasApiTokens;
+use Bavix\Wallet\Traits\HasWalletFloat;
+use Bavix\Wallet\Interfaces\Wallet;
 
-class User extends Authenticatable
+class User extends Authenticatable implements Wallet
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, HasWalletFloat, Notifiable;
+
+    private const PLAYER_ROLE = 3;
 
     /**
      * The attributes that are mass assignable.
@@ -100,18 +101,78 @@ class User extends Authenticatable
         return $this->hasOne(Wallet::class);
     }
 
-    public function transactions(): HasMany
-    {
-        return $this->hasMany(Transaction::class, 'user_id');
-    }
+    // public function transactions(): HasMany
+    // {
+    //     return $this->hasMany(Transaction::class, 'user_id');
+    // }
 
     public static function adminUser()
     {
         return self::where('type', UserType::Admin)->first();
     }
 
-    public function cashBonuses()
+
+    public function getIsAdminAttribute()
     {
-        return $this->hasMany(CashBonu::class);
+        return $this->roles()->where('id', 1)->exists();
+    }
+
+    public function getIsMasterAttribute()
+    {
+        return $this->roles()->where('id', 2)->exists();
+    }
+
+    public function getIsAgentAttribute()
+    {
+        return $this->roles()->where('id', 3)->exists();
+    }
+
+    public function getIsUserAttribute()
+    {
+        return $this->roles()->where('id', 4)->exists();
+    }
+
+
+    public function seamlessTransactions()
+    {
+        return $this->hasMany(SeamlessTransaction::class, 'user_id');
+    }
+
+    public function wagers()
+    {
+        return $this->hasMany(Wager::class);
+    }
+
+   
+    public function scopePlayer($query)
+    {
+        return $query->whereHas('roles', function ($query) {
+            $query->where('role_id', self::PLAYER_ROLE);
+        });
+    }
+
+    public static function getPlayersByAgentId(int $agentId)
+    {
+        return self::where('agent_id', $agentId)
+            ->whereHas('roles', function ($query) {
+                $query->where('title', '!=', 'Agent');
+            })
+            ->get();
+    }
+
+    public function agent()
+    {
+        return $this->belongsTo(User::class, 'agent_id');
+    }
+
+    // public function user(): BelongsTo
+    // {
+    //     return $this->belongsTo(User::class);
+    // }
+
+
+    public function reports()
+    {
+        return $this->hasMany(Report::class, 'agent_id');
     }
 }
