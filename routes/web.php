@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\LoginController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +15,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
+// Auth::routes();
+
+// Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+
+require_once __DIR__.'/admin.php';
+
+Route::get('login', [LoginController::class, 'index'])->name('login');
+Route::post('login', [LoginController::class, 'login'])->name('login');
+Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+Route::get('/', [HomeController::class, 'index'])->name('home');
