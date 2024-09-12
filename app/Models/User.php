@@ -96,10 +96,7 @@ class User extends Authenticatable implements Wallet
         return $query->whereRelation('roles', 'role_id', $roleId);
     }
 
-    public function wallet(): HasOne
-    {
-        return $this->hasOne(Wallet::class);
-    }
+    
 
     // public function transactions(): HasMany
     // {
