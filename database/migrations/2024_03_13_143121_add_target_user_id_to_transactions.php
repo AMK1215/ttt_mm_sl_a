@@ -19,6 +19,13 @@ return new class extends Migration
             ADD COLUMN target_user_id bigint GENERATED ALWAYS AS ( json_unquote(json_extract(meta, '$.target_user_id'))) STORED
             SQL
         );
+//         DB::statement(
+//     <<<'SQL'
+//     ALTER TABLE transactions
+//     ADD COLUMN target_user_id bigint GENERATED ALWAYS AS ( json_unquote(json_extract(meta, '$.target_user_id'))) STORED
+//     SQL
+// );
+
 
         Schema::table('transactions', function (Blueprint $table) {
             $table->index('target_user_id');

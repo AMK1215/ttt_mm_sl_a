@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
-use App\Enums\TransactionName;
+use App\Models\User;
 use App\Models\PlaceBet;
-use Bavix\Wallet\Models\Transaction as ModelsTransaction;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Enums\TransactionName;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Bavix\Wallet\Models\Transaction as ModelsTransaction;
 
 class Transaction extends ModelsTransaction
 {
@@ -15,7 +16,7 @@ class Transaction extends ModelsTransaction
     /**
      * @var array<string, string>
      */
-    protected $fillable = ['agent_id'];
+    protected $fillable = ['target_user_id'];
 
     protected $casts = [
         'wallet_id' => 'int',
@@ -40,7 +41,13 @@ class Transaction extends ModelsTransaction
     }
 
     public function targetUser()
-    {
-        return $this->belongsTo(User::class);
-    }
+{
+    return $this->belongsTo(User::class, 'target_user_id'); // Use a different foreign key if needed
+}
+
+
+    // public function targetUser()
+    // {
+    //     return $this->belongsTo(User::class);
+    // }
 }
