@@ -1,0 +1,28 @@
+sudo chown -R www-data:www-data /var/www/html/ttt_mm_sl_a
+sudo find /var/www/html/ttt_mm_sl_a -type d -exec chmod 755 {} \;
+sudo find /var/www/html/ttt_mm_sl_a -type f -exec chmod 644 {} \;
+sudo chown -R www-data:www-data /var/www/html/ttt_mm_sl_a/storage
+sudo chown -R www-data:www-data /var/www/html/ttt_mm_sl_a/bootstrap/cache
+
+sudo chmod -R 775 /var/www/html/ttt_mm_sl_a/storage
+sudo chmod -R 775 /var/www/html/ttt_mm_sl_a/bootstrap/cache
+ls -la /var/www/html/ttt_mm_sl_a
+
+sudo systemctl restart nginx
+ 
+// to remove laravel log
+php -r "file_put_contents('/var/www/html/ttt_mm_sl_a/storage/logs/laravel.log', '');"
+// created dev branch for kzt
+
+tail -f /var/www/html/ttt_mm_sl_a/storage/logs/laravel.log
+
+crontab -e
+
+* * * * * cd /var/www/ttt_mm_sl_a && php artisan schedule:run >> /dev/null 2>&1
+
+
+php artisan make:migration add_agent_link_to_users_table --table=users
+
+// to add column 
+ALTER TABLE transactions
+ADD COLUMN agent_id INT(11) AFTER name;

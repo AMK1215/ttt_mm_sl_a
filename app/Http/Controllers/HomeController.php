@@ -8,6 +8,7 @@ use App\Models\SeamlessTransaction;
 use App\Models\User;
 use App\Services\WalletService;
 use App\Settings\AppSetting;
+use Bavix\Wallet\Models\Wallet;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -36,6 +37,7 @@ class HomeController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $userId = Auth::id();
         $isAdmin = $user->hasRole('Admin');
         $role = $user->roles->pluck('title');
 
@@ -46,19 +48,39 @@ class HomeController extends Controller
                 $query->where('agent_id', $user->id);
             })->count();
         };
+        $totalBalance = Wallet::whereHasMorph(
+            'holder', // This is the polymorphic relation defined in the wallets table
+            [\App\Models\User::class], // Class to morph to (User)
+            function ($query) {
+                $query->where('agent_id', Auth::id()); // Filter by agent_id matching the auth user
+            }
+        )->sum('balance'); // Summing up the balance
+        // $totalBalance = DB::table('users')->join('wallets', 'wallets.user_id', '=', 'users.id')
+        //     ->where('agent_id', Auth::id())->select(DB::raw('SUM(wallets.balance) as balance'))->first();
 
-        $totalBalance = DB::table('users')->join('wallets', 'wallets.user_id', '=', 'users.id')
-            ->where('agent_id', Auth::id())->select(DB::raw('SUM(wallets.balance) as balance'))->first();
-
-        $deposit = $user->transactions()->with('targetUser')
-            ->select(DB::raw('SUM(transactions.amount) as amount'))
-            ->where('transactions.type', 'deposit')
+        // Get total deposits
+        $deposit = DB::table('transactions')
+            ->select(DB::raw('SUM(amount) as total_deposit'))
+            ->where('payable_id', $userId)  // Assuming payable_id is the user_id or foreign key
+            ->where('type', 'deposit')
             ->first();
 
-        $withdraw = $user->transactions()->with('targetUser')
-            ->select(DB::raw('SUM(transactions.amount) as amount'))
-            ->where('transactions.type', 'withdraw')
+        // Get total withdrawals
+        $withdraw = DB::table('transactions')
+            ->select(DB::raw('SUM(amount) as total_withdraw'))
+            ->where('payable_id', $userId)  // Assuming payable_id is the user_id or foreign key
+            ->where('type', 'withdraw')
             ->first();
+
+        // $deposit = $user->transactions()->with('targetUser')
+        //     ->select(DB::raw('SUM(transactions.amount) as amount'))
+        //     ->where('transactions.type', 'deposit')
+        //     ->first();
+
+        // $withdraw = $user->transactions()->with('targetUser')
+        //     ->select(DB::raw('SUM(transactions.amount) as amount'))
+        //     ->where('transactions.type', 'withdraw')
+        //     ->first();
 
         $agent_count = $getUserCounts('Agent');
         $player_count = $getUserCounts('Player');

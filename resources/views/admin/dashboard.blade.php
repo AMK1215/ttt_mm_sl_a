@@ -23,7 +23,7 @@
             <!-- small box -->
             <div class="small-box bg-info">
               <div class="inner">
-                <h3>{{ number_format($user->wallet->balance, 2)}}</h3>
+                <h3>{{ number_format(auth()->user()->balanceFloat)}}</h3>
 
                 <p>Balance</p>
               </div>
@@ -38,7 +38,7 @@
             <!-- small box -->
             <div class="small-box bg-success">
               <div class="inner">
-                <h3>{{number_format($totalBalance->balance, 2)}}</h3>
+                {{-- <h3>{{number_format($totalBalance->balanceFloat, 2)}}</h3> --}}
                   @if($role['0'] == 'Admin')
                  <p>Master Total Balance</p>
                   @elseif($role['0'] == 'Master')
