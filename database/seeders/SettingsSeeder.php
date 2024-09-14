@@ -20,36 +20,7 @@ class SettingsSeeder extends Seeder
                 'locked' => false,
                 'payload' => json_encode(['balance' => 0.00]),  // Add the missing value
             ],
-            [
-                'group' => 'general',
-                'name' => 'site_name',
-                'locked' => false,
-                'payload' => json_encode(['value' => 'My Application']),
-            ],
-            [
-                'group' => 'general',
-                'name' => 'site_url',
-                'locked' => false,
-                'payload' => json_encode(['value' => 'https://myapp.com']),
-            ],
-            [
-                'group' => 'general',
-                'name' => 'admin_email',
-                'locked' => true,
-                'payload' => json_encode(['value' => 'admin@myapp.com']),
-            ],
-            [
-                'group' => 'security',
-                'name' => 'enable_2fa',
-                'locked' => false,
-                'payload' => json_encode(['enabled' => true]),
-            ],
-            [
-                'group' => 'features',
-                'name' => 'new_feature_flag',
-                'locked' => false,
-                'payload' => json_encode(['enabled' => false]),
-            ],
+            
         ];
 
         foreach ($settings as $setting) {
