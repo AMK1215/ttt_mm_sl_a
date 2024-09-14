@@ -15,10 +15,11 @@ class SettingsSeeder extends Seeder
     {
         $settings = [
              [
-                'group' => 'provider',  // Example for your custom property
+                'group' => 'app',  // Example for your custom property
                 'name' => 'provider_initial_balance',
                 'locked' => false,
-                'payload' => json_encode(['balance' => 1.00]),  // Add the missing value
+                //'payload' => json_encode(['balance' => 1.00]),  // Add the missing value
+                'payload' => json_encode(0.00),
             ],
             
         ];
