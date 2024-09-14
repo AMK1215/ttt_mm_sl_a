@@ -18,7 +18,7 @@ class SettingsSeeder extends Seeder
                 'group' => 'provider',  // Example for your custom property
                 'name' => 'provider_initial_balance',
                 'locked' => false,
-                'payload' => json_encode(['balance' => 0.00]),  // Add the missing value
+                'payload' => json_encode(['balance' => 1.00]),  // Add the missing value
             ],
             
         ];
