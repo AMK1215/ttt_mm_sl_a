@@ -41,6 +41,9 @@ class HomeController extends Controller
         $isAdmin = $user->hasRole('Admin');
         $role = $user->roles->pluck('title');
 
+        $provider_balance = (new AppSetting)->provider_initial_balance + SeamlessTransaction::sum('transaction_amount');
+
+
         $getUserCounts = function ($roleTitle) use ($isAdmin, $user) {
             return User::whereHas('roles', function ($query) use ($roleTitle) {
                 $query->where('title', '=', $roleTitle);
