@@ -14,6 +14,12 @@ class SettingsSeeder extends Seeder
     public function run(): void
     {
         $settings = [
+             [
+                'group' => 'provider',  // Example for your custom property
+                'name' => 'provider_initial_balance',
+                'locked' => false,
+                'payload' => json_encode(['balance' => 0.00]),  // Add the missing value
+            ],
             [
                 'group' => 'general',
                 'name' => 'site_name',
