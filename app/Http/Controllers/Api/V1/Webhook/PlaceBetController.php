@@ -19,7 +19,6 @@ use Illuminate\Support\Facades\DB;
 class PlaceBetController extends Controller
 {
     use UseWebhook;
-
     public function placeBet(SlotWebhookRequest $request)
     {
         DB::beginTransaction();

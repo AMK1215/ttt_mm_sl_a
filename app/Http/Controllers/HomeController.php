@@ -98,7 +98,8 @@ class HomeController extends Controller
             'deposit',
             'withdraw',
             'totalBalance',
-            'role'
+            'role',
+            'provider_balance'
         ));
     }
 
